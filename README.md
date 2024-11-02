@@ -2,7 +2,7 @@
 
 This is the repo to contain my learnings of [The Go Programming Language](https://go.dev/). They will mostly be from the [Go Docs](https://go.dev/doc/). I will try to put the notes of the topics I learn in this README.
 
-## [Getting started)](https://go.dev/doc/tutorial/getting-started)
+## [Getting started](https://go.dev/doc/tutorial/getting-started)
 
 ### Hello, world
 
