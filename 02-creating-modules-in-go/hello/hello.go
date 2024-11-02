@@ -12,9 +12,11 @@ func main() {
 	log.SetPrefix("greetings: ") // set prefix
 	log.SetFlags(0)              // don't log timestamp and source file info
 
-	var msg, err = greetings.Hello("Rafi")
+	var names = []string{"Md", "Rafi", "Akhtar"}
+	var messages, err = greetings.Hellos(names)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(msg)
+
+	fmt.Println(messages)
 }
