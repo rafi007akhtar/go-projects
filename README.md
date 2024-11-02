@@ -2,9 +2,9 @@
 
 This is the repo to contain my learnings of [The Go Programming Language](https://go.dev/). They will mostly be from the [Go Docs](https://go.dev/doc/). I will try to put the notes of the topics I learn in this README.
 
-## [Getting started ("hello, world")](https://go.dev/doc/tutorial/getting-started)
+## [Getting started)](https://go.dev/doc/tutorial/getting-started)
 
-## Hello, world
+### Hello, world
 
 Create a [hello.go](./01-getting-started-with-go/hello.go) file, and write the following code.
 
@@ -27,7 +27,7 @@ go mod init example/hello
 
 This is still not fully clear to me. I might check their [docs on this](https://go.dev/doc/modules/managing-dependencies) at some point.
 
-### Running the code directly
+#### Running the code directly
 
 To run the code, either of the following commands will work:
 
@@ -65,7 +65,7 @@ Now run the executable:
 
 **Note:** I'm using the Zsh terminal for my development. If you're using the standard CMD prompt on Windows, the execution command might vary (most likely, it will be the same commands without the `./`, so either `hello` or `hello.exe`). On Powershell, the Zsh commands I've used above will work.
 
-## Using external package
+### Using external package
 
 Inside the hello.go file, import the `rsc.quote` command. Then call `Go` from `quote`. I've done this in a separate function called `phrase`, and called the it in the `main` function.
 
