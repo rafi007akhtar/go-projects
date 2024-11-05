@@ -91,6 +91,62 @@ func coordinates(x, y float64) Coord {
 	return c
 }
 
+type Vertex struct {
+	x int
+	y int
+}
+
+func sliceProps() {
+	var primes = []int{2, 3, 5, 7, 11, 13}
+	var lenp, capp = len(primes), cap(primes)
+	fmt.Printf("For slice %v, length is %v and capacity is %v\n", primes, lenp, capp)
+
+	primes = primes[:0]
+	lenp, capp = len(primes), cap(primes)
+	fmt.Printf("Shrinking the primes slice so it now becomes %v with %v length and %v capacity\n", primes, lenp, capp)
+	fmt.Printf("It is %t that this slice is nil\n", primes == nil)
+
+	primes = primes[:4] // NOTE: primes[n:] would not work if len(primes) < n
+	lenp, capp = len(primes), cap(primes)
+	fmt.Printf(
+		"Now that the slice is empty, re-expanding it by slicing on its original array so it it now becomes %v with length %v and capacity %v\n",
+		primes,
+		lenp,
+		capp,
+	)
+
+	var undef []int
+	fmt.Printf("Created an undefined slice, %v, so it's %t that the zero-value of this slice is nil\n", undef, undef == nil)
+
+	var (
+		a = make([]int, 5)
+		b = make([]int, 0, 5)
+		c = b[:2]
+		d = c[2:5]
+	)
+	var slices = [][]int{a, b, c, d}
+	var e = []int{1, 2, 3, 4, 5}
+	slices = append(slices, e)
+	printSlices(slices)
+}
+
+func printSlice(s []int) {
+	fmt.Printf("For slice %v, length is %v and capacity is %v\n", s, len(s), cap(s))
+}
+
+func printSlices(slices [][]int) {
+	for i := 0; i < len(slices); i++ {
+		printSlice(slices[i])
+	}
+}
+
+func arrs() {
+	var arr1 = [9]string{"the", "quick", "brown", "fox", "jumps", "over", "the", "lazy"}
+	fmt.Println("arr1:", arr1, arr1[len(arr1)-1])
+	arr1[8] = "dog"
+	fmt.Println("arr1:", arr1)
+}
+
 func main() {
 	// 01 - sum of two numbers, and print
 	var a, b = 12, 12
@@ -135,4 +191,18 @@ func main() {
 	x, y = 110, 120
 	var c = coordinates(x, y)
 	fmt.Printf("\nThe coordinates are %+v, where the latitude is %v and the longitude is %v\n", c, c.lat, c.lng)
+
+	// 11 - struct literals
+	var v1 = Vertex{1, 2}
+	var v2 = Vertex{x: 1}
+	var v3 = Vertex{}
+	var vp = &Vertex{1, 2}
+	fmt.Printf("v1 = %+v, v2 = %+v, v3 = %+v, vp = %+v, vp value = %+v\n", v1, v2, v3, vp, *vp)
+
+	// 12 - arrays
+	arrs()
+	println()
+
+	// 13 - slices
+	sliceProps()
 }
