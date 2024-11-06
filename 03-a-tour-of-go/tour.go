@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"runtime"
+
+	"golang.org/x/tour/pic"
 )
 
 func add(a, b int) int {
@@ -203,6 +205,7 @@ func main() {
 	arrs()
 	println()
 
-	// 13 - slices
+	// 13 - slices and ranges
 	sliceProps()
+	pic.Show(Pic)
 }
