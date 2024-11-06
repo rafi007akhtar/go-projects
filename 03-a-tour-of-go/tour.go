@@ -168,6 +168,19 @@ func WordCount(s string) map[string]int {
 	return count
 }
 
+// The following function was written as solution to the exerciese on function closure
+// in the offical Tour of Go page
+// https://go.dev/tour/moretypes/26
+func fibonacciFC() func() int {
+	var a, b = -1, 1
+	return func() int {
+		var c = a + b
+		a = b
+		b = c
+		return c
+	}
+}
+
 func main() {
 	// 01 - sum of two numbers, and print
 	var a, b = 12, 12
@@ -250,4 +263,13 @@ func main() {
 	}
 	characters["The Authority"] = "His Dark Materials"
 	fmt.Printf("The characters are %+v\n", characters)
+
+	// 15 - function closures and function as values
+	f := fibonacciFC()
+	fmt.Printf("Fibonacci numbers are: ")
+	for i := 0; i < 10; i++ {
+		var nextNum = f()
+		fmt.Printf("%v ", nextNum)
+	}
+	println()
 }
