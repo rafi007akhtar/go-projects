@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"runtime"
+	"strings"
 
 	"golang.org/x/tour/pic"
 )
@@ -149,6 +150,24 @@ func arrs() {
 	fmt.Println("arr1:", arr1)
 }
 
+// not calling this function
+// but wrote this soln. for the exercise in the official Tour
+// https://go.dev/tour/moretypes/23
+func WordCount(s string) map[string]int {
+	var fields = strings.Fields(s)
+	println("fields", fields)
+	var count = map[string]int{}
+	for _, field := range fields {
+		_, ok := count[field]
+		if ok {
+			count[field] += 1
+		} else {
+			count[field] = 1
+		}
+	}
+	return count
+}
+
 func main() {
 	// 01 - sum of two numbers, and print
 	var a, b = 12, 12
@@ -208,4 +227,27 @@ func main() {
 	// 13 - slices and ranges
 	sliceProps()
 	pic.Show(Pic)
+
+	// 14 - maps
+	var locs = make(map[string]Coord)
+	locs = map[string]Coord{
+		"rand-loc": {1, 2}, // can also be Coord{1, 2}
+	}
+	fmt.Printf("This is a random location: %+v\n", locs)
+	var characters = map[string]string{
+		"Vargo Hoat": "A Song of Ice and Fire",
+		"Glokta":     "The First Law",
+		"Ineluki":    "Memory, Sorrow and Thorn",
+	}
+	var searchTerm = "Glokta"
+	fmt.Printf("%v is from %v\n", searchTerm, characters[searchTerm])
+	delete(characters, searchTerm)
+	var book, ok = characters[searchTerm]
+	if ok {
+		fmt.Printf("%v is from %v\n", searchTerm, book)
+	} else {
+		fmt.Printf("%v not found\n", searchTerm)
+	}
+	characters["The Authority"] = "His Dark Materials"
+	fmt.Printf("The characters are %+v\n", characters)
 }
