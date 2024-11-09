@@ -31,9 +31,14 @@ type rightTri interface {
 	calcHypotenuse() float64
 	printSide()
 }
-
 type scalableRightTri interface {
 	scale(unit float64)
+}
+
+// Implementing Stringer interface on Side
+func (s Side) String() string {
+	var hyp = s.calcHypotenuse()
+	return fmt.Sprintf("The hypotenuse for sides %v and %v is %v\n", s.base, s.perp, hyp)
 }
 
 func TourMethodsAndInterfaces() {
@@ -99,6 +104,11 @@ func TourMethodsAndInterfaces() {
 	random = "hello"
 	variables = Side{}
 	doStuffFromType([]interface{}{some, random, variables})
+
+	// 06 - Stringer interface
+	// Stringer interface is implemented on the Side type
+	var side5 = Side{7, 8}
+	fmt.Print(side5)
 }
 
 func (s Side) printSide() {
