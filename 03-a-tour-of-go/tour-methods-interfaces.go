@@ -41,6 +41,34 @@ func (s Side) String() string {
 	return fmt.Sprintf("The hypotenuse for sides %v and %v is %v\n", s.base, s.perp, hyp)
 }
 
+// NOTE: the following type, method and function are my solution to the Errors exercise on Tour
+// https://go.dev/tour/methods/20
+type ErrNegativeSqrt float64
+
+func (e ErrNegativeSqrt) Error() string {
+	var floatE = float64(e) // NOTE: this is absolutely necessary, to convert e to float value before referencing in a print function
+	return fmt.Sprintf("cannot Sqrt negative number: %v", floatE)
+}
+func Sqrt(n float64) (float64, error) {
+	if n < 0 {
+		return 0, ErrNegativeSqrt(n)
+	}
+	var z = 1.0
+	for i := 0; i < 10; i++ {
+		z -= (z*z - n) / (2 * z)
+	}
+
+	var prevZ float64
+	for {
+		prevZ = z
+		z -= (z*z - n) / (2 * z)
+		if (z - prevZ) < 0.000001 {
+			break
+		}
+	}
+	return z, nil
+}
+
 func TourMethodsAndInterfaces() {
 	// 01 - method on a type
 	var side = Side{4, 3}
@@ -109,6 +137,15 @@ func TourMethodsAndInterfaces() {
 	// Stringer interface is implemented on the Side type
 	var side5 = Side{7, 8}
 	fmt.Print(side5)
+
+	// 07 - errors
+	var n float64 = 2
+	var (
+		sqrt1, err1 = Sqrt(n)
+		sqrt2, err2 = Sqrt(-n)
+	)
+	printSqrt(n, sqrt1, err1)
+	printSqrt(n, sqrt2, err2)
 }
 
 func (s Side) printSide() {
@@ -130,5 +167,13 @@ func doStuffFromType(someVars []interface{}) {
 		default:
 			fmt.Printf("Variable is of type %T\n", v)
 		}
+	}
+}
+
+func printSqrt(n float64, root float64, err error) {
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("%v ** 0.5 = %v\n", n, root)
 	}
 }
