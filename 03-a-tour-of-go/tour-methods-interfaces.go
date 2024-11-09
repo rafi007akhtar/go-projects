@@ -81,6 +81,24 @@ func TourMethodsAndInterfaces() {
 	printAny(any)
 	any = Side{3, 4}
 	printAny(any)
+
+	// 05 - type assertions and switch
+	// we can provide type assertion of a variable this way:
+	var a, ok = any.(Side)
+	if ok {
+		fmt.Printf("any variable is of type Side with value %v\n", a)
+	}
+	// NOTE: the second variable in the assert (ok) is optional, but it's better to provide it otherwise the compiler will panic on assert fail
+	aa, ok := any.(int)
+	if !ok {
+		fmt.Printf("any variable is not of type int, so we get its zero-value %v\n", aa)
+	}
+	// you can put type in a switch case with variable.(type) syntax, used below:
+	var some, random, variables interface{}
+	some = 1
+	random = "hello"
+	variables = Side{}
+	doStuffFromType([]interface{}{some, random, variables})
 }
 
 func (s Side) printSide() {
@@ -90,4 +108,17 @@ func (s Side) printSide() {
 
 func printAny(any interface{}) {
 	fmt.Printf("Variable of type %T has value %v\n", any, any)
+}
+
+func doStuffFromType(someVars []interface{}) {
+	for _, someVar := range someVars {
+		switch v := someVar.(type) {
+		case int:
+			fmt.Printf("Double of %v is %v\n", v, v*2)
+		case string:
+			fmt.Printf("Variable %v is a string\n", v)
+		default:
+			fmt.Printf("Variable is of type %T\n", v)
+		}
+	}
 }
