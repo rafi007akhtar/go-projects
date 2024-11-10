@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
 	"io"
 	"math"
+	"math/rand"
 
 	"golang.org/x/tour/reader"
 )
@@ -105,6 +108,28 @@ func (r *rot13Reader) Read(b []byte) (int, error) {
 	return n, err
 }
 
+// NOTE: the following is a solution to the images exercise on the official Tour page
+type Image struct{ w, h int }
+
+func (i Image) ColorModel() color.Model {
+	return color.RGBAModel
+}
+func (i Image) Bounds() image.Rectangle {
+	return image.Rect(0, 0, i.w, i.h)
+}
+func (i Image) At(x, y int) color.Color {
+	return color.RGBA{
+		// this logic was obtained from: https://gist.github.com/inancgumus/d25d045b4cec43dcbb111e04980d396b#file-exercise_25_image-go
+		randUint8(x%255, 255),
+		randUint8(0, y%255+1),
+		randUint8(0, (x^y)%255+1),
+		randUint8(200, 255)}
+}
+func randUint8(min int, max int) uint8 {
+	// this function was obtained from: https://gist.github.com/inancgumus/d25d045b4cec43dcbb111e04980d396b#file-exercise_25_image-go
+	return uint8(min + rand.Intn(max-min))
+}
+
 func TourMethodsAndInterfaces() {
 	// 01 - method on a type
 	var side = Side{4, 3}
@@ -186,6 +211,11 @@ func TourMethodsAndInterfaces() {
 	// 08 - readers
 	fmt.Print("Reader solution is: ")
 	testReader()
+
+	// 09 - images
+	// NOTE: uncomment to see the image bytes on the termial during runtime
+	// m := Image{500, 500}
+	// pic.ShowImage(m)
 }
 
 func (s Side) printSide() {
