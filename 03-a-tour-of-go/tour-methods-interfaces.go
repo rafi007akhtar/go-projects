@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"math"
+
+	"golang.org/x/tour/reader"
 )
 
 type Side struct{ base, perp float64 }
@@ -67,6 +70,39 @@ func Sqrt(n float64) (float64, error) {
 		}
 	}
 	return z, nil
+}
+
+// NOTE: this is my solution to the Readers exercise on the official Tour page
+// this one: https://go.dev/tour/methods/22
+// Implement a Reader type that emits an infinite stream of the ASCII character 'A'.
+type MyReader struct{}
+
+func (r MyReader) Read(data []byte) (int, error) {
+	for i := 0; i < len(data); i++ {
+		data[i] = 'A'
+	}
+	return len(data), nil
+}
+func testReader() {
+	reader.Validate(MyReader{})
+}
+
+// NOTE: the following is a solution to the rot13 exercise on the official Tour page
+// https://go.dev/tour/methods/23
+type rot13Reader struct {
+	r io.Reader
+}
+
+func (r *rot13Reader) Read(b []byte) (int, error) {
+	var n, err = r.r.Read(b)
+	for i, c := range b {
+		if (c >= 'N' && c <= 'Z') || (c >= 'n' && c <= 'z') {
+			b[i] -= 13
+		} else if (c >= 'A' && c <= 'M') || (c >= 'a' || c <= 'm') {
+			b[i] += 13
+		}
+	}
+	return n, err
 }
 
 func TourMethodsAndInterfaces() {
@@ -146,6 +182,10 @@ func TourMethodsAndInterfaces() {
 	)
 	printSqrt(n, sqrt1, err1)
 	printSqrt(n, sqrt2, err2)
+
+	// 08 - readers
+	fmt.Print("Reader solution is: ")
+	testReader()
 }
 
 func (s Side) printSide() {
