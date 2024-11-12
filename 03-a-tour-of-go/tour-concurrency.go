@@ -24,6 +24,25 @@ func sumCh(nums []int, ch chan int) {
 	ch <- sum // NOTE: this is where we send the value to the channel
 }
 
+func channelizeSlice(arr []int, ch chan int) {
+	for _, val := range arr {
+		ch <- val
+	}
+	close(ch)
+}
+
+func printChannelValues[T any](ch chan T) {
+	println("Printing channel values:")
+	for {
+		var val, ok = <-ch
+		if !ok {
+			println("\nAll values of the given channel are printed")
+			return
+		}
+		fmt.Printf("%v, ", val)
+	}
+}
+
 func TourConcurrency() {
 	// 01 - goroutines
 	go say("hello", 5)
@@ -47,4 +66,18 @@ func TourConcurrency() {
 		y = <-ch
 	)
 	fmt.Printf("Extracted values: %v, %v; their sum: %v\n", x, y, x+y)
+
+	// 03 - buffered channels
+	// to make a BUFFERED channel (with max capacity), apply the buffer length in the second argument of make
+	var buffCh = make(chan int, 2)
+	buffCh <- 1
+	buffCh <- 2
+	// buffCh <- 3 // this line will cause fatal error
+
+	// 04 - closing a channel
+	// if the channel is closed (ok value is false), no more value will be received from it
+	var arr = []int{1, 2, 3, 4, 5}
+	var myCh = make(chan int, 5)
+	go channelizeSlice(arr, myCh)
+	printChannelValues(myCh)
 }
