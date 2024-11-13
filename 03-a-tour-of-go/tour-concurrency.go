@@ -43,6 +43,26 @@ func printChannelValues[T any](ch chan T) {
 	}
 }
 
+func isEven(ch chan int, stop chan bool) {
+	var val int
+	for {
+		select {
+		// NOTE: I don't fully understand this
+		case val = <-ch:
+			if val%2 == 0 {
+				fmt.Printf("%v is even\n", val)
+			} else {
+				fmt.Printf("%v is odd\n", val)
+			}
+		case <-stop:
+			return
+		default:
+			println("Channels don't have value right now")
+			return
+		}
+	}
+}
+
 func TourConcurrency() {
 	// 01 - goroutines
 	go say("hello", 5)
@@ -80,4 +100,21 @@ func TourConcurrency() {
 	var myCh = make(chan int, 5)
 	go channelizeSlice(arr, myCh)
 	printChannelValues(myCh)
+
+	// 05 - select statements
+	var (
+		ch2  = make(chan int)
+		stop = make(chan bool)
+	)
+	go func() {
+		for i := 0; i < 10; i++ {
+			ch2 <- i
+		}
+		stop <- true
+	}()
+	// The following two function calls happen to the isEven function
+	// one of them (could be either) will trigger the first case inside select until ch2 has value; then it will trigger the stop case
+	// the other will trigger the default case as neither ch2 nor stop will have value then
+	isEven(ch2, stop)
+	isEven(ch2, stop)
 }
