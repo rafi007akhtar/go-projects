@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
+
+	"golang.org/x/tour/tree"
 )
 
 func say(word string, n int) {
@@ -63,6 +65,63 @@ func isEven(ch chan int, stop chan bool) {
 	}
 }
 
+// The following few functions are a solution to the equivalent trees exercise from the official Tour
+// this one: https://go.dev/tour/concurrency/8
+func Walk(t *tree.Tree, ch chan int) {
+	defer close(ch)
+
+	var w func(t *tree.Tree)
+	w = func(t *tree.Tree) {
+		if t != nil {
+			w(t.Right)
+			ch <- t.Value
+			w(t.Left)
+		}
+	}
+	w(t)
+}
+func Same(t1, t2 *tree.Tree) bool {
+	var (
+		ch1 = make(chan int)
+		ch2 = make(chan int)
+	)
+	go Walk(t1, ch1)
+	go Walk(t2, ch2)
+
+	for val := range ch1 {
+		if val != <-ch2 {
+			return false
+		}
+	}
+	return true
+}
+func printTree(t *tree.Tree) {
+	if t != nil {
+		printTree(t.Right)
+		fmt.Printf("%v ", t.Value)
+		printTree(t.Left)
+	}
+}
+func testTreeEquivalence() {
+	var (
+		t1 = tree.New(1)
+		t2 = tree.New(1) // change parameter anything else for inequivalence
+	)
+	println("First tree:")
+	printTree(t1)
+	println()
+	println("Second tree:")
+	printTree(t2)
+	println()
+
+	var same = Same(t1, t2)
+	if same {
+		println("Both trees are equivalent")
+	} else {
+		println("Both trees are not equivalent")
+	}
+}
+
 func TourConcurrency() {
 	// 01 - goroutines
 	go say("hello", 5)
@@ -117,4 +176,7 @@ func TourConcurrency() {
 	// the other will trigger the default case as neither ch2 nor stop will have value then
 	isEven(ch2, stop)
 	isEven(ch2, stop)
+
+	// 06 - exercise: equivalent trees
+	testTreeEquivalence()
 }
