@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"golang.org/x/tour/tree"
@@ -122,6 +123,23 @@ func testTreeEquivalence() {
 	}
 }
 
+// The following is a struct with a key/value entry, and a mutex to allow / disallow its modification
+type SafeCounter struct {
+	mut   sync.Mutex
+	entry map[string]int
+}
+
+func (sc *SafeCounter) incr(key string) {
+	sc.mut.Lock() // now only one goroutine can access it
+	sc.entry[key]++
+	sc.mut.Unlock() // now its free for use for other goroutines
+}
+func (sc *SafeCounter) get(key string) int {
+	sc.mut.Lock()         // now only one goroutine can access it
+	defer sc.mut.Unlock() // once the return is done, it will be free for use for other goroutines
+	return sc.entry[key]
+}
+
 func TourConcurrency() {
 	// 01 - goroutines
 	go say("hello", 5)
@@ -172,11 +190,127 @@ func TourConcurrency() {
 		stop <- true
 	}()
 	// The following two function calls happen to the isEven function
-	// one of them (could be either) will trigger the first case inside select until ch2 has value; then it will trigger the stop case
+	// one of them (could be either) will trigger the first case inside select as long as ch2 has value; then it will trigger the stop case
 	// the other will trigger the default case as neither ch2 nor stop will have value then
 	isEven(ch2, stop)
 	isEven(ch2, stop)
 
 	// 06 - exercise: equivalent trees
 	testTreeEquivalence()
+
+	// 07 - go routines
+	var counter = SafeCounter{entry: make(map[string]int)}
+	const MY_KEY = "myKey"
+	for i := 0; i < 1000; i++ {
+		go counter.incr(MY_KEY)
+	}
+	// wait for a while until all lock / unlock operations are completed
+	time.Sleep(time.Second)
+	// now print the value
+	fmt.Printf("Counter value at key '%v' is %v\n", MY_KEY, counter.get(MY_KEY))
+
+	// 08 - exercise: web crawler
+	fetchedUrls.urls = []string{}
+	println("Web crawler results:")
+	go Crawl("https://golang.org/", 4, fetcher)
+	time.Sleep(time.Second)
+}
+
+// the following code is a solution for the web crawler exercise on the official Tour
+// this one: https://go.dev/tour/concurrency/10
+type safeUrls struct {
+	urls []string
+	mut  sync.Mutex
+}
+
+var fetchedUrls safeUrls
+
+func exists(searchTerm string, slice []string) bool {
+	for _, val := range slice {
+		if val == searchTerm {
+			return true
+		}
+	}
+	return false
+}
+
+type Fetcher interface {
+	// Fetch returns the body of URL and
+	// a slice of URLs found on that page.
+	Fetch(url string) (body string, urls []string, err error)
+}
+
+// Crawl uses fetcher to recursively crawl
+// pages starting with url, to a maximum of depth.
+func Crawl(url string, depth int, fetcher Fetcher) {
+	if depth <= 0 {
+		return
+	}
+
+	fetchedUrls.mut.Lock()         // lock the url cache
+	defer fetchedUrls.mut.Unlock() // unlock after function terminates
+
+	body, urls, err := fetcher.Fetch(url)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("found: %s %q\n", url, body)
+	for _, u := range urls {
+		if !exists(u, fetchedUrls.urls) { // make sure duplicates are not refetched
+			fetchedUrls.urls = append(fetchedUrls.urls, u)
+			go Crawl(u, depth-1, fetcher) // parallelize here
+		}
+	}
+	return
+}
+
+// <all the below code is all taken from the Go page>
+// fakeFetcher is Fetcher that returns canned results.
+type fakeFetcher map[string]*fakeResult
+
+type fakeResult struct {
+	body string
+	urls []string
+}
+
+func (f fakeFetcher) Fetch(url string) (string, []string, error) {
+	if res, ok := f[url]; ok {
+		return res.body, res.urls, nil
+	}
+	return "", nil, fmt.Errorf("not found: %s", url)
+}
+
+// fetcher is a populated fakeFetcher.
+var fetcher = fakeFetcher{
+	"https://golang.org/": &fakeResult{
+		"The Go Programming Language",
+		[]string{
+			"https://golang.org/pkg/",
+			"https://golang.org/cmd/",
+		},
+	},
+	"https://golang.org/pkg/": &fakeResult{
+		"Packages",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/cmd/",
+			"https://golang.org/pkg/fmt/",
+			"https://golang.org/pkg/os/",
+		},
+	},
+	"https://golang.org/pkg/fmt/": &fakeResult{
+		"Package fmt",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+	"https://golang.org/pkg/os/": &fakeResult{
+		"Package os",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
 }
